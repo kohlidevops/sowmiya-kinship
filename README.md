@@ -52,6 +52,8 @@ Logging and monitoring enabled
 
 **Repository Structure**
 
+```
+
 terraform-gcp-infra/
 │── environments/
 │ └── poc/ # Environment configuration
@@ -68,6 +70,7 @@ terraform-gcp-infra/
 │── scripts/
 │ └── install-vpn.sh # VPN setup script
 
+```
 🚀 **Getting Started**
 
 **1. Prerequisites**
