@@ -16,39 +16,48 @@ Automated provisioning
 The Terraform setup provisions the following resources:
 
 🌐 **Network**
-1 VPC (Virtual Private Cloud)
-2 Subnets:
+
+1. VPC (Virtual Private Cloud)
+2. Subnets:
+
 Public Subnet
 Private Subnet
+
 VPC Flow Logs enabled for monitoring and auditing
 
 🌍 **Cloud NAT**
+
 Cloud NAT enables private VMs to access the internet securely without assigning public IPs
 Used for:
-Installing packages (apt, npm, pip)
-Pulling Docker images
-Accessing external APIs
-Ensures outbound internet access while keeping VMs private
+
+1. Installing packages (apt, npm, pip)
+2. Pulling Docker images
+3. Accessing external APIs
+4. Ensures outbound internet access while keeping VMs private
 
 💻 **Compute Resources**
+
 4 Virtual Machines (VMs):
-Public VMs
-VPN Server
-Assets Server
-Private VMs
-Knowledge Backend
-Studio Frontend (Admin use)
+
+- Public VMs
+- VPN Server
+- Assets Server
+- Private VMs
+- Knowledge Backend
+- Studio Frontend (Admin use)
 
 🔐 **Security**
-Firewall rules configured for controlled access
-Network Security Groups (NSG) / equivalent rules
-Private VMs are not exposed to the internet
-Access via VPN server
+
+- Firewall rules configured for controlled access
+- Network Security Groups (NSG) / equivalent rules
+- Private VMs are not exposed to the internet
+- Access via VPN server
 
 ⚙️ **Additional Configurations**
-Labels/tags for resource organization
-Deletion protection is enabled for critical resources
-Logging and monitoring enabled
+
+- Labels/tags for resource organization
+- Deletion protection is enabled for critical resources
+- Logging and monitoring enabled
 
 **Repository Structure**
 
@@ -78,46 +87,61 @@ terraform-gcp-infra/
 Make sure you have:
 
 Terraform installed (>= 1.x)
+
 Cloud provider account (GCP)
+
 CLI authenticated (e.g., gcloud auth login)
+
 SSH key pair generated
 
 **2. Clone Repository**
 
 git clone <your-repo-url>
+
 cd terraform-infra/environments/dev
 
 **3. Configure Variables**
 
 Update the terraform.tfvars file:
 
+```
 project_id = "your-project-id"
 region     = "your-region"
 zone       = "your-zone"
+```
 
 🚀 **Steps to Execute Terraform**
 
 **1. Navigate to Environment**
+
 cd environments/poc
 
 **2. Initialize Terraform**
+
 terraform init
 
 **3. Format Terraform Code**
+
 terraform fmt
 
 **4. Validate Configuration**
+
 terraform validate
 
 **5. Plan Infrastructure**
+
 terraform plan
 
 **6. Apply Infrastructure**
 
+terraform apply
+
 🔑 **Load SSH Public Key (PowerShell)**
+
 $key = Get-Content $env:USERPROFILE\.ssh\<gcp-key.pub> -Raw
 
 ▶️ **Apply Command**
+
 terraform apply -var="ssh_public_key=$key"
 
 🌐 **Post Deployment Steps (VPN Setup)**
@@ -125,12 +149,15 @@ terraform apply -var="ssh_public_key=$key"
 After infrastructure is successfully created:
 
 **1. Connect to VPN Server**
+
 ssh <username>@<vpn-public-ip>
 
 **2. Verify VPN Installation Logs**
+
 sudo cat /var/log/startup-script.log
 
 **3. Retrieve VPN Client Configuration**
+
 sudo cat /root/client1.ovpn
 
 **4. Setup VPN on Local Machine**
@@ -140,14 +167,17 @@ Create a new file:
 client1.ovpn
 
 Copy the content from the server and paste into this file
+
 Save the file locally
 
 **5. Install OpenVPN**
 
 Download and install OpenVPN client on your local machine
+
 Import the client1.ovpn file
 
 **6. Test VPN Connection**
+
 ping <private-vm-ip>
 
 🔐 **Access Private VM**
@@ -157,28 +187,32 @@ After VPN connection is successful:
 ssh -i <private-key-path> <username>@<private-ip>
 
 ⚠️ **Notes**
+
 Ensure SSH key is correct before applying Terraform
+
 VPN must be connected to access private VMs
+
 Do not expose private VM IPs publicly
+
 Keep .tfstate files secure
 
 🔥 **Summary**
 
 This setup provides:
 
-Secure infrastructure with public & private VMs
-VPN-based access to private resources
-Modular Terraform design
-Easy reproducibility and setup
+- Secure infrastructure with public & private VMs
+- VPN-based access to private resources
+- Modular Terraform design
+- Easy reproducibility and setup
 
 ✅ **Workflow Summary**
 
-Run Terraform commands
-Provision infrastructure
-Connect to VPN server
-Download .ovpn config
-Connect using OpenVPN
-Access private VM securely
+- Run Terraform commands
+- Provision infrastructure
+- Connect to VPN server
+- Download .ovpn config
+- Connect using OpenVPN
+- Access private VM securely
 
 
 
@@ -196,9 +230,9 @@ The **Kinship Studio CI pipeline** automates code quality checks and application
 
 The workflow is triggered on:
 
-Push to `main` branch
-Pull requests targeting `main`
-Manual trigger (`workflow_dispatch`)
+- Push to `main` branch
+- Pull requests targeting `main`
+- Manual trigger (`workflow_dispatch`)
 
 ---
 
@@ -215,21 +249,27 @@ This stage ensures that the code is clean, consistent, and production-ready befo
 ### **Steps Performed**
 
 #### **1. Checkout Repository**
+
 The workflow fetches the latest source code from the repository.
 
 #### **2. Setup Node.js Environment**
+
 Node.js version **20** is installed to match the application runtime.
 
 #### **3. Install Dependencies**
+
 npm install
 
 #### **4. Prettier Formatting Check**
+
 npm run format
 
 #### **5. ESLint Check**
+
 npm run lint
 
 #### **6. Run Tests**
+
 npm run test
 
 ---
@@ -238,9 +278,9 @@ npm run test
 
 If any of the following fails:
 
-Formatting check
-Linting
-Tests
+- Formatting check
+- Linting
+- Tests
 
 ➡️ The pipeline **stops immediately**, and the build step will not run.
 
@@ -253,12 +293,15 @@ Once all quality checks pass, the pipeline proceeds to build the application.
 ### **Steps Performed**
 
 #### **1. Cache Next.js Build**
+
 To improve performance, the `.next/cache` directory is cached.
 
 Reduces build time for subsequent runs
+
 Cache key is based on `package.json`
 
 #### **2. Build Application**
+
 npm run build
 
 ---
@@ -266,18 +309,20 @@ npm run build
 ## 📦 **Output**
 
 A **successful production build** of the Next.js application
+
 Ensures the app is ready for deployment
+
 No Docker image is generated in this pipeline (CI-only validation)
 
 ---
 
 ## 📌 **Key Benefits**
 
-Enforces code formatting standards
-Detects lint issues early
-Ensures all tests pass before build
-Speeds up builds using caching
-Prevents broken builds from reaching deployment
+- Enforces code formatting standards
+- Detects lint issues early
+- Ensures all tests pass before build
+- Speeds up builds using caching
+- Prevents broken builds from reaching deployment
 
 ---
 
@@ -285,6 +330,7 @@ Prevents broken builds from reaching deployment
 
 Ensure the following scripts exist in your `package.json`:
 
+```
 {
   "scripts": {
     "format": "prettier --check .",
@@ -293,6 +339,7 @@ Ensure the following scripts exist in your `package.json`:
     "build": "next build"
   }
 }
+```
 
 ---
 
@@ -306,7 +353,7 @@ Ensure the following scripts exist in your `package.json`:
 
 The Kinship Studio CI pipeline ensures that:
 
-Code is properly formatted
-Linting rules are followed
+- Code is properly formatted
+- Linting rules are followed
 Tests are successfully executed
 The application builds without errors
